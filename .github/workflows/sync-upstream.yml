@@ -1,0 +1,36 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # Runs daily at 03:00 UTC
+  workflow_dispatch: # Optional: allows manual trigger from GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the forked repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false # Use PAT instead
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Add and fetch upstream repo
+        run: |
+          git remote add upstream https://github.com/Priyansh-911/tendr.git
+          git fetch upstream
+
+      - name: Merge upstream changes
+        run: |
+          git pull --rebase upstream main
+
+      - name: Push to your fork
+        env:
+          PAT: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push --force https://x-access-token:${PAT}@github.com/contacttendr-max/tendr.git main
