@@ -24,6 +24,7 @@ import {
   FiGift,
   FiCamera,
   FiMusic,
+  FiCoffee,  
   // FiUtensils,
   FiMenu,
   FiX

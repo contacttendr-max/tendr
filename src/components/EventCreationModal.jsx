@@ -11,7 +11,7 @@ import {
   FiStar,
   FiCamera,
   FiMusic,
-  // FiUtensils,
+  FiCoffee,
   FiGift,
   FiAward
 } from 'react-icons/fi';

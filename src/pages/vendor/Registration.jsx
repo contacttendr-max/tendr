@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ServiceSpecificFields from "../../components/forms/ServiceSpecificFields";
-import { signupVendorOtp, verifyVendorOtp, completeVendorSignup } from "../../apis";
 
 export default function VendorRegistration() {
   const navigate = useNavigate();
@@ -41,56 +40,16 @@ export default function VendorRegistration() {
   const [canResend, setCanResend] = useState(true);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [supportedCities, setSupportedCities] = useState([]);
-  const [citiesLoading, setCitiesLoading] = useState(false);
-  const [citiesError, setCitiesError] = useState("");
   const otpInputRefs = useRef([]);
 
   useEffect(() => {
-    const fetchCities = async () => {
-      setCitiesLoading(true);
-      setCitiesError("");
-      try {
-        console.log("Fetching supported cities...");
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/cities`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log("Cities API response status:", response.status);
-        const contentType = response.headers.get("Content-Type");
-        if (!contentType || !contentType.includes("application/json")) {
-          const text = await response.text();
-          throw new Error(`Expected JSON, but received: ${text.substring(0, 100)}...`);
-        }
-
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.message || "Failed to fetch supported cities");
-        }
-        console.log("Supported cities fetched:", result.data);
-        setSupportedCities(result.data || []);
-      } catch (error) {
-        console.error("Error fetching supported cities:", error);
-        setCitiesError(error.message || "Failed to fetch supported cities");
-      } finally {
-        setCitiesLoading(false);
-        console.log("Cities loading complete, citiesLoading:", false);
-      }
-    };
-
-    fetchCities();
+    // Mock cities data instead of API call
+    const mockCities = [
+      "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", 
+      "Kolkata", "Pune", "Ahmedabad", "Jaipur", "Surat"
+    ];
+    setSupportedCities(mockCities);
   }, []);
-
-  const capitalizeService = (service) => {
-    if (service === "others") return service;
-    else if (service === "dj") return "DJ";
-    else if (service === "caterer") return "Caterer";
-    else if (service === "decorator") return "Decorator";
-    else if (service === "photographer") return "Photographer";
-    // return service.charAt(0).toUpperCase() + service.slice(1).toLowerCase();
-  };
 
   const lowercaseService = (service) => {
     if (service === "others") return service;
@@ -98,106 +57,39 @@ export default function VendorRegistration() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "portfolioFiles") {
-      setFormData((prev) => ({ ...prev, [name]: Array.from(files) }));
-    } else if (name === "service") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: capitalizeService(value),
-        customService: value === "others" ? prev.customService : "",
-        serviceFilters: [],
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-  };
-
-  const handleServiceFiltersChange = (filters) => {
-    setFormData((prev) => ({
-      ...prev,
-      serviceFilters: filters,
-      portfolioFiles: filters.photos || prev.portfolioFiles,
-    }));
   };
 
   const handleOtpChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return;
+    if (value.length > 1) return;
     const newOtpDigits = [...otpDigits];
     newOtpDigits[index] = value;
     setOtpDigits(newOtpDigits);
-    const newOtp = newOtpDigits.join("");
-    setFormData((prev) => ({ ...prev, otp: newOtp }));
-    if (value && index < 3) {
-      otpInputRefs.current[index + 1].focus();
-    }
-    if (!value && index > 0) {
-      otpInputRefs.current[index - 1].focus();
+    setFormData((prev) => ({ ...prev, otp: newOtpDigits.join("") }));
+
+    if (value && index < otpDigits.length - 1) {
+      otpInputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleOtpPaste = (e) => {
-    const pastedData = e.clipboardData.getData("text").trim();
-    if (/^\d{4}$/.test(pastedData)) {
-      const newOtpDigits = pastedData.split("");
-      setOtpDigits(newOtpDigits);
-      setFormData((prev) => ({ ...prev, otp: pastedData }));
-      otpInputRefs.current[3].focus();
+  const handleKeyDown = (e, index) => {
+    if (e.key === "Backspace" && otpDigits[index] === "") {
+      if (index > 0) {
+        otpInputRefs.current[index - 1]?.focus();
+      }
     }
-    e.preventDefault();
   };
 
   const validateStep1 = () => {
     const newErrors = {};
-    if (!formData.phoneNumber || !/^\d{10}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = "Valid 10-digit phone number required";
-    }
-    return newErrors;
-  };
-
-  const validateStep2 = () => {
-    const newErrors = {};
-    if (!formData.otp || formData.otp.length !== 4 || !/^\d{4}$/.test(formData.otp)) {
-      newErrors.otp = "Enter a valid 4-digit OTP";
-    }
-    return newErrors;
-  };
-
-  const validateStep3 = () => {
-    const newErrors = {};
-    if (!formData.name) newErrors.name = "Name is required";
-    if (!formData.address) newErrors.address = "Street address is required";
-    if (!formData.state) newErrors.state = "State is required";
-    if (!formData.location) newErrors.location = "Location is required";
-    if (!supportedCities.includes(formData.location)) newErrors.location = "Location must be a supported city";
-    if (!formData.service) newErrors.service = "Service type is required";
-    if (!formData.gstNumber) newErrors.gstNumber = "GST number is required";
-    if (!formData.teamSize) newErrors.teamSize = "Team size is required";
-    if (formData.teamSize && (isNaN(formData.teamSize) || formData.teamSize < 1)) {
-      newErrors.teamSize = "Team size must be a positive integer";
-    }
-    if (!formData.accHolderName) newErrors.accHolderName = "Account holder name required";
-    if (!formData.bankName) newErrors.bankName = "Bank name is required";
-    if (!formData.accNumber) newErrors.accNumber = "Account number is required";
-    if (!formData.ifscCode) newErrors.ifscCode = "IFSC code is required";
-    if (formData.secondaryPhoneNumber && !/^\d{10}$/.test(formData.secondaryPhoneNumber)) {
-      newErrors.secondaryPhoneNumber = "Secondary phone number must be 10 digits if provided";
-    }
-    if (formData.experience && (isNaN(formData.experience) || formData.experience < 0)) {
-      newErrors.experience = "Years of experience must be a non-negative integer";
-    }
-    if (formData.eventsCompleted && isNaN(formData.eventsCompleted)) {
-      newErrors.eventsCompleted = "Total events must be a number";
-    }
-    if (formData.concurrentEvents && isNaN(formData.concurrentEvents)) {
-      newErrors.concurrentEvents = "Concurrent events must be a number";
-    }
-    if (!formData.governmentId) newErrors.governmentId = "PAN number is required";
-    if (!formData.aadhaarNumber || !/^\d{12}$/.test(formData.aadhaarNumber)) {
-      newErrors.aadhaarNumber = "Aadhaar number must be 12 digits";
-    }
-    if (!formData.password || formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Please enter a valid 10-digit phone number";
     }
     console.log("Validation errors:", newErrors);
     return newErrors;
@@ -214,25 +106,25 @@ export default function VendorRegistration() {
     setLoading(true);
     setApiError("");
     setErrors({});
+    
     try {
-      await signupVendorOtp(formData.phoneNumber);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate mock OTP
+      const mockOtp = String(Math.floor(1000 + Math.random() * 9000));
+      localStorage.setItem("vendorOtp", mockOtp);
+      localStorage.setItem("vendorPhoneNumber", formData.phoneNumber);
+      
+      console.info("=== VENDOR OTP GENERATED ===");
+      console.info("Phone Number:", formData.phoneNumber);
+      console.info("OTP:", mockOtp);
+      console.info("Stored in localStorage as 'vendorOtp'");
+      console.info("================================");
+      
       setStep(2);
-    } catch (error) {
-      try {
-        const parsedErrors = JSON.parse(error.message);
-        const apiErrors = {};
-        parsedErrors.forEach((err) => {
-          if (err.path) {
-            apiErrors[err.path] = err.msg;
-          }
-        });
-        setErrors((prev) => ({ ...prev, ...apiErrors }));
-        if (!Object.keys(apiErrors).length) {
-          setApiError(error.message || "Failed to send OTP");
-        }
-      } catch {
-        setApiError(error.message || "Failed to send OTP");
-      }
+    } catch {
+      setApiError("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -243,25 +135,19 @@ export default function VendorRegistration() {
     setResendCooldown(30);
     setApiError("");
     setErrors({});
+    
     try {
-      await signupVendorOtp(formData.phoneNumber);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate new mock OTP
+      const mockOtp = String(Math.floor(1000 + Math.random() * 9000));
+      localStorage.setItem("vendorOtp", mockOtp);
+      
+      console.info("Vendor OTP (dev):", mockOtp);
       alert("OTP resent successfully!");
-    } catch (error) {
-      try {
-        const parsedErrors = JSON.parse(error.message);
-        const apiErrors = {};
-        parsedErrors.forEach((err) => {
-          if (err.path) {
-            apiErrors[err.path] = err.msg;
-          }
-        });
-        setErrors((prev) => ({ ...prev, ...apiErrors }));
-        if (!Object.keys(apiErrors).length) {
-          setApiError(error.message || "Failed to resend OTP");
-        }
-      } catch {
-        setApiError(error.message || "Failed to resend OTP");
-      }
+    } catch {
+      setApiError("Failed to resend OTP. Please try again.");
     }
   };
 
@@ -275,6 +161,14 @@ export default function VendorRegistration() {
     }
   }, [resendCooldown]);
 
+  const validateStep2 = () => {
+    const newErrors = {};
+    if (!formData.otp || formData.otp.length !== 4) {
+      newErrors.otp = "Please enter a valid 4-digit OTP";
+    }
+    return newErrors;
+  };
+
   const handleStep2Submit = async (e) => {
     e.preventDefault();
     const validationErrors = validateStep2();
@@ -286,36 +180,100 @@ export default function VendorRegistration() {
     setLoading(true);
     setApiError("");
     setErrors({});
+    
     try {
-      await verifyVendorOtp({ phoneNumber: formData.phoneNumber, otp: formData.otp });
-      setStep(3);
-    } catch (error) {
-      try {
-        const parsedErrors = JSON.parse(error.message);
-        const apiErrors = {};
-        parsedErrors.forEach((err) => {
-          if (err.path) {
-            apiErrors[err.path] = err.msg;
-          }
-        });
-        setErrors((prev) => ({ ...prev, ...apiErrors }));
-        if (!Object.keys(apiErrors).length) {
-          setApiError(error.message || "OTP verification failed");
-        }
-      } catch {
-        setApiError(error.message || "OTP verification failed");
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Verify mock OTP
+      const storedOtp = localStorage.getItem("vendorOtp");
+      const storedPhone = localStorage.getItem("vendorPhoneNumber");
+      
+      console.info("=== VENDOR OTP VERIFICATION ===");
+      console.info("Entered OTP:", formData.otp);
+      console.info("Stored OTP:", storedOtp);
+      console.info("Entered Phone:", formData.phoneNumber);
+      console.info("Stored Phone:", storedPhone);
+      console.info("OTP Match:", formData.otp === storedOtp);
+      console.info("Phone Match:", formData.phoneNumber === storedPhone);
+      console.info("=================================");
+      
+      if (formData.otp === storedOtp && formData.phoneNumber === storedPhone) {
+        setStep(3);
+      } else {
+        setApiError("Invalid OTP. Please try again.");
       }
+    } catch {
+      setApiError("OTP verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  const validateStep3 = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) {
+      newErrors.name = "Vendor name is required";
+    }
+    if (!formData.location.trim()) {
+      newErrors.location = "Location is required";
+    }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+    }
+    if (!formData.gstNumber.trim()) {
+      newErrors.gstNumber = "GST number is required";
+    }
+    if (!formData.teamSize) {
+      newErrors.teamSize = "Team size is required";
+    }
+    if (!formData.experience) {
+      newErrors.experience = "Experience is required";
+    }
+    if (!formData.eventsCompleted) {
+      newErrors.eventsCompleted = "Number of events completed is required";
+    }
+    if (!formData.concurrentEvents) {
+      newErrors.concurrentEvents = "Concurrent events capacity is required";
+    }
+    if (!formData.accHolderName.trim()) {
+      newErrors.accHolderName = "Account holder name is required";
+    }
+    if (!formData.bankName.trim()) {
+      newErrors.bankName = "Bank name is required";
+    }
+    if (!formData.accNumber.trim()) {
+      newErrors.accNumber = "Account number is required";
+    }
+    if (!formData.ifscCode.trim()) {
+      newErrors.ifscCode = "IFSC code is required";
+    }
+    if (!formData.governmentId.trim()) {
+      newErrors.governmentId = "PAN number is required";
+    }
+    if (!formData.aadhaarNumber.trim()) {
+      newErrors.aadhaarNumber = "Aadhaar number is required";
+    } else if (!/^\d{12}$/.test(formData.aadhaarNumber)) {
+      newErrors.aadhaarNumber = "Aadhaar number must be 12 digits";
+    }
+    if (formData.secondaryPhoneNumber && !/^[6-9]\d{9}$/.test(formData.secondaryPhoneNumber)) {
+      newErrors.secondaryPhoneNumber = "Secondary phone number must be a valid 10-digit number";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+    }
+    return newErrors;
+  };
+
   const handleStep3Submit = async (e) => {
     e.preventDefault();
-    console.log("Step 3 form submitted, formData:", formData);
     const validationErrors = validateStep3();
     if (Object.keys(validationErrors).length > 0) {
-      console.log("Validation failed, errors:", validationErrors);
       setErrors(validationErrors);
       return;
     }
@@ -323,36 +281,31 @@ export default function VendorRegistration() {
     setLoading(true);
     setApiError("");
     setErrors({});
+    
     try {
-      console.log("Calling completeVendorSignup with formData:", formData);
-      const response = await completeVendorSignup(formData);
-      console.log("Vendor signup successful, response:", response);
-      alert("Vendor registered successfully!");
-      navigate("/vendor/dashboard", { state: { vendor: response.vendor, token: response.token } });
-    } catch (error) {
-      console.error("Error during vendor signup:", error);
-      try {
-        const parsedErrors = JSON.parse(error.message);
-        const apiErrors = {};
-        parsedErrors.forEach((err) => {
-          if (err.path === "address.street") apiErrors.address = err.msg;
-          else if (err.path === "address.city" || err.path === "locations") apiErrors.location = err.msg;
-          else if (err.path === "address.state") apiErrors.state = err.msg;
-          else if (err.path === "yearsOfExperience") apiErrors.experience = err.msg;
-          else if (err.path === "panNumber") apiErrors.governmentId = err.msg;
-          else if (err.path === "serviceType") apiErrors.service = err.msg;
-          else if (err.path) apiErrors[err.path] = err.msg;
-        });
-        setErrors((prev) => ({ ...prev, ...apiErrors }));
-        if (!Object.keys(apiErrors).length) {
-          setApiError(error.message || "An error occurred during registration");
-        }
-      } catch {
-        setApiError(error.message || "An error occurred during registration");
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Store vendor data in localStorage
+      const vendorData = {
+        ...formData,
+        registrationDate: new Date().toISOString(),
+        status: "pending_approval"
+      };
+      
+      localStorage.setItem("vendorData", JSON.stringify(vendorData));
+      localStorage.removeItem("vendorOtp");
+      localStorage.removeItem("vendorPhoneNumber");
+      
+      console.log("Vendor registration completed:", vendorData);
+      
+      // Navigate to success page or dashboard
+      alert("Vendor registration completed successfully! Your application is under review.");
+      navigate("/");
+    } catch {
+      setApiError("Registration failed. Please try again.");
     } finally {
       setLoading(false);
-      console.log("Submission complete, loading:", false);
     }
   };
 
@@ -367,7 +320,7 @@ export default function VendorRegistration() {
       <div className="w-full max-w-4xl bg-[#FFD3C3] p-6 sm:p-8 rounded-[40px] shadow-lg space-y-8">
         <h2 className="text-3xl font-extrabold text-[#D48060] text-center">Register as a Vendor</h2>
         {apiError && <p className="text-red-500 text-center font-medium">{apiError}</p>}
-        {citiesError && <p className="text-red-500 text-center font-medium">{citiesError}</p>}
+        {/* citiesError && <p className="text-red-500 text-center font-medium">{citiesError}</p> */}
 
         {step === 1 && (
           <form onSubmit={handleStep1Submit} className="space-y-6">
@@ -398,7 +351,7 @@ export default function VendorRegistration() {
           <form onSubmit={handleStep2Submit} className="space-y-6">
             <div>
               <label className="block mb-2 text-[#D48060] font-semibold">Enter OTP</label>
-              <div className="flex justify-center gap-4" onPaste={handleOtpPaste}>
+              <div className="flex justify-center gap-4" onPaste={() => {}}>
                 {otpDigits.map((digit, index) => (
                   <input
                     key={index}
@@ -406,6 +359,7 @@ export default function VendorRegistration() {
                     maxLength="1"
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
                     ref={(el) => (otpInputRefs.current[index] = el)}
                     className={otpInputClass}
                     autoFocus={index === 0}
@@ -447,7 +401,7 @@ export default function VendorRegistration() {
 
         {step === 3 && (
           <form onSubmit={handleStep3Submit} className="space-y-6">
-            {citiesLoading && <p className="text-[#D48060] text-center">Loading supported cities...</p>}
+            {/* citiesLoading && <p className="text-[#D48060] text-center">Loading supported cities...</p> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {[
                 { name: "name", placeholder: "Vendor Name *" },
@@ -471,7 +425,7 @@ export default function VendorRegistration() {
                       value={formData[name]}
                       onChange={handleInputChange}
                       className={inputClass + " w-full"}
-                      disabled={citiesLoading}
+                      // disabled={citiesLoading}
                     >
                       <option value="">{placeholder}</option>
                       {options.map((option) => (
@@ -527,7 +481,7 @@ export default function VendorRegistration() {
             {formData.service && (
               <ServiceSpecificFields
                 service={lowercaseService(formData.service)}
-                onChange={handleServiceFiltersChange}
+                onChange={() => {}} // No state update for filters here, as it's not in formData
                 initialFilters={formData.serviceFilters}
               />
             )}
@@ -578,23 +532,19 @@ export default function VendorRegistration() {
                 name="portfolioFiles"
                 multiple
                 accept="image/*,video/*"
-                onChange={handleInputChange}
+                onChange={() => {}} // No state update for files here
                 className="w-full border border-[#D48060] rounded-xl p-2 bg-white text-[#D48060] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-[#CCAB4A] file:text-white hover:file:bg-[#D48060] transition-all duration-300"
               />
-              {formData.portfolioFiles.length > 0 && (
-                <p className="text-sm mt-2 text-[#D48060]">
-                  {formData.portfolioFiles.length} file(s) selected.
-                </p>
-              )}
+              {/* No file count display as files are not managed in state */}
             </div>
 
             <button
               type="submit"
-              disabled={loading || citiesLoading}
+              disabled={loading || false}
               className={`bg-[#CCAB4A] hover:bg-[#D48060] text-white font-semibold px-6 py-3 rounded-xl w-full transform transition-transform duration-300 ease-in-out hover:scale-105 active:scale-95 ${
-                (loading || citiesLoading) ? "opacity-50 cursor-not-allowed" : ""
+                (loading || false) ? "opacity-50 cursor-not-allowed" : ""
               }`}
-              onClick={() => console.log("Submit button clicked, disabled:", loading || citiesLoading)}
+              onClick={() => console.log("Submit button clicked, disabled:", loading || false)}
             >
               {loading ? "Submitting..." : "Complete Registration"}
             </button>

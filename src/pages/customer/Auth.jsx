@@ -4,7 +4,7 @@ import signupbackground from "../../assets/backgrounds/signup-bg.png";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { signup, login, clearError, fetchUserProfile } from '../../redux/authSlice';
+import { clearError } from '../../redux/authSlice';
 
 const Auth = () => {
   const location = useLocation();
@@ -14,6 +14,8 @@ const Auth = () => {
 
   const isSignupPath = location.pathname === "/signup";
   const [isSignup, setIsSignup] = useState(isSignupPath);
+  const [localLoading, setLocalLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,6 +29,7 @@ const Auth = () => {
   useEffect(() => {
     setIsSignup(location.pathname === "/signup");
     dispatch(clearError());
+    setLocalError("");
   }, [location.pathname, dispatch]);
 
   useEffect(() => {
@@ -40,6 +43,7 @@ const Auth = () => {
     navigate(isSignup ? "/login" : "/signup");
     setPasswordError("");
     setShowPassword(false);
+    setLocalError("");
   };
 
   const handleChange = (e) => {
@@ -64,13 +68,44 @@ const Auth = () => {
       setPasswordError("Password must be at least 8 characters long");
       return;
     }
-    const userData = {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      phoneNumber: formData.phoneNumber,
-    };
-    dispatch(signup(userData));
+
+    setLocalLoading(true);
+    setLocalError("");
+
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Store user data in localStorage for mock flow
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber,
+        location: formData.location,
+      };
+
+      // Generate mock verification ID
+      const mockVerificationId = `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Store in localStorage for OTP verification
+      localStorage.setItem("mockUserData", JSON.stringify(userData));
+      localStorage.setItem("mockVerificationId", mockVerificationId);
+      
+      // Generate mock OTP
+      const mockOtp = String(Math.floor(1000 + Math.random() * 9000));
+      localStorage.setItem("mockOtp", mockOtp);
+      
+      console.info("Mock OTP (dev):", mockOtp);
+      console.info("Mock Verification ID:", mockVerificationId);
+
+      // Navigate to OTP page
+      navigate("/otp");
+    } catch {
+      setLocalError("Signup failed. Please try again.");
+    } finally {
+      setLocalLoading(false);
+    }
   };
 
   const handleLoginSubmit = async (e) => {
@@ -79,17 +114,36 @@ const Auth = () => {
       setPasswordError("Password must be at least 8 characters long");
       return;
     }
-    const credentials = {
-      phoneNumber: formData.phoneNumber,
-      password: formData.password,
-    };
-    dispatch(login(credentials)).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
-        dispatch(fetchUserProfile()); 
-        navigate("/"); // or navigate to dashboard
-      }
-    });
 
+    setLocalLoading(true);
+    setLocalError("");
+
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Check if user exists in localStorage (mock authentication)
+      const mockUserData = localStorage.getItem("mockUserData");
+      if (mockUserData) {
+        const user = JSON.parse(mockUserData);
+        if (user.phoneNumber === formData.phoneNumber && user.password === formData.password) {
+          // Mock successful login
+          localStorage.setItem("mockLogin", JSON.stringify({
+            user,
+            loginTime: new Date().toISOString()
+          }));
+          navigate("/dashboard");
+        } else {
+          setLocalError("Invalid phone number or password");
+        }
+      } else {
+        setLocalError("No account found. Please sign up first.");
+      }
+    } catch {
+      setLocalError("Login failed. Please try again.");
+    } finally {
+      setLocalLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -118,13 +172,13 @@ const Auth = () => {
             />
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4 text-gray-800">
+          <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4 sm:mb-6 text-gray-800">
             {isSignup ? "Welcome to tendr!" : "Sign in to tendr!"}
           </h2>
 
-          {error && (
+          {(error || localError) && (
             <div className="text-red-500 text-xs sm:text-sm text-center mb-3 sm:mb-4">
-              {error}
+              {localError || error}
             </div>
           )}
 
@@ -140,7 +194,7 @@ const Auth = () => {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-yellow-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  disabled={loading}
+                  disabled={loading || localLoading}
                 />
               </div>
               <div>
@@ -153,7 +207,7 @@ const Auth = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-yellow-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  disabled={loading}
+                  disabled={loading || localLoading}
                 />
               </div>
               <div>
@@ -168,14 +222,14 @@ const Auth = () => {
                     onChange={handleChange}
                     className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border ${passwordError ? "border-red-500" : "border-yellow-400"
                       } rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 pr-10`}
-                    disabled={loading}
+                    disabled={loading || localLoading}
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-3 text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 active:outline-none rounded-r-xl transition-colors duration-200"
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    disabled={loading}
+                    disabled={loading || localLoading}
                   >
                     <svg
                       className="h-4 w-4 sm:h-5 sm:w-5"
@@ -224,7 +278,7 @@ const Auth = () => {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-yellow-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  disabled={loading}
+                  disabled={loading || localLoading}
                 />
               </div>
               <div>
@@ -236,7 +290,7 @@ const Auth = () => {
                   value={formData.location}
                   onChange={handleChange}
                   className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-yellow-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  disabled={loading}
+                  disabled={loading || localLoading}
                 >
                   <option value="">Select a location</option>
                   <option value="delhi">Delhi</option>
@@ -249,9 +303,9 @@ const Auth = () => {
                   type="submit"
                   className="text-white text-xs sm:text-sm font-semibold rounded-xl w-24 sm:w-28 h-8 sm:h-9 m-1"
                   style={{ backgroundColor: "#CCAB4A" }}
-                  disabled={loading || passwordError}
+                  disabled={loading || localLoading || passwordError}
                 >
-                  {loading ? "Signing Up..." : "Sign Up"}
+                  {loading || localLoading ? "Signing Up..." : "Sign Up"}
                 </button>
               </div>
             </form>
@@ -267,7 +321,7 @@ const Auth = () => {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm border border-yellow-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  disabled={loading}
+                  disabled={loading || localLoading}
                 />
               </div>
               <div>
@@ -282,14 +336,14 @@ const Auth = () => {
                     onChange={handleChange}
                     className={`w-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm border ${passwordError ? "border-red-500" : "border-yellow-400"
                       } rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500 pr-10`}
-                    disabled={loading}
+                    disabled={loading || localLoading}
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-3 text-gray-600 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 active:outline-none rounded-r-xl transition-colors duration-200"
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    disabled={loading}
+                    disabled={loading || localLoading}
                   >
                     <svg
                       className="h-4 w-4 sm:h-5 sm:w-5"
@@ -336,9 +390,9 @@ const Auth = () => {
                   type="submit"
                   className="text-white text-xs sm:text-sm font-semibold rounded-xl w-28 sm:w-32 h-8 sm:h-10"
                   style={{ backgroundColor: "#CCAB4A" }}
-                  disabled={loading || passwordError}
+                  disabled={loading || localLoading || passwordError}
                 >
-                  {loading ? "Signing In..." : "Sign In"}
+                  {loading || localLoading ? "Signing In..." : "Sign In"}
                 </button>
               </div>
             </form>
