@@ -33,6 +33,7 @@ import CorporateDashboard from "./pages/corporate/Dashboard.jsx";
 
 // only chat list for customers (no Conversation/ActiveChat components)
 import CustomerChatList from "./pages/customer/Chats";
+import EventPlanning from "./pages/customer/EventPlanning.jsx";
 
 const router = createBrowserRouter([
   { 
@@ -52,9 +53,7 @@ const router = createBrowserRouter([
     element: <CorporateBooking />,
     errorElement: <ErrorPage />
   },
-  
-  {
-    path: '/AdminDashboard',
+
   { 
     path: "/AdminDashboard", 
     element: <AdminDashboard />,
@@ -79,7 +78,8 @@ const router = createBrowserRouter([
     path: '/UserDashboard',
     element: <UserDashboard />,
     errorElement: <ErrorPage />,
-  { 
+  },
+  {
     path: "/UserDashboard", 
     element: <UserDashboard />, 
     errorElement: <ErrorPage /> 
