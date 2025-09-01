@@ -1,17 +1,52 @@
+// src/components/PrimaryFilters_ListingPage.jsx
 import React from "react";
 
-const PrimaryFilters_ListingPage = ({ filters = {}, onFilterChange = () => {} }) => {
-  const {
-    eventType = "",
-    date = "",
-    guestCount = "",
-    minBudget = "",
-    maxBudget = "",
-    sortBy = "rankingScore",
-  } = filters;
-
+const PrimaryFilters_ListingPage = ({
+  eventType = "",
+  setEventType = () => {},
+  serviceType = "",
+  setServiceType = () => {},
+  locationType = "",
+  setLocationType = () => {},
+  date = "",
+  setDate = () => {},
+  guestCount = "",
+  setGuestCount = () => {},
+  onSearch = () => {},
+}) => {
   return (
     <div className="primary-filters space-y-4 sm:space-y-6">
+      {/* Service Type */}
+      <div className="filter-group">
+        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+          Service Type
+        </label>
+        <select
+          value={serviceType}
+          onChange={(e) => setServiceType(e.target.value)}
+          className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
+        >
+          <option value="">All Services</option>
+          <option value="Caterer">Caterer</option>
+          <option value="Decorator">Decorator</option>
+          <option value="Photographer">Photographer</option>
+          {/* add more here if your API supports them: DJ, Makeup, Venue, etc. */}
+        </select>
+      </div>
+
+      {/* Location */}
+      <div className="filter-group">
+        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+          Location
+        </label>
+        <input
+          value={locationType}
+          onChange={(e) => setLocationType(e.target.value)}
+          placeholder="City / Area"
+          className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
+        />
+      </div>
+
       {/* Event Type */}
       <div className="filter-group">
         <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
@@ -19,7 +54,7 @@ const PrimaryFilters_ListingPage = ({ filters = {}, onFilterChange = () => {} })
         </label>
         <select
           value={eventType}
-          onChange={(e) => onFilterChange("eventType", e.target.value)}
+          onChange={(e) => setEventType(e.target.value)}
           className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
         >
           <option value="">All Event Types</option>
@@ -43,7 +78,7 @@ const PrimaryFilters_ListingPage = ({ filters = {}, onFilterChange = () => {} })
         <input
           type="date"
           value={date}
-          onChange={(e) => onFilterChange("date", e.target.value)}
+          onChange={(e) => setDate(e.target.value)}
           className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
         />
       </div>
@@ -56,54 +91,20 @@ const PrimaryFilters_ListingPage = ({ filters = {}, onFilterChange = () => {} })
         <input
           type="number"
           min="1"
-          value={guestCount ?? ""}  // preserves 0 if ever needed
-          onChange={(e) => onFilterChange("guestCount", e.target.value)}
+          value={guestCount ?? ""}
+          onChange={(e) => setGuestCount(e.target.value)}
           placeholder="Enter guest count"
           className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
         />
       </div>
 
-      {/* Budget Range */}
-      <div className="filter-group">
-        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-          Budget Range
-        </label>
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          <input
-            type="number"
-            min="0"
-            value={minBudget ?? ""}  // ✅ use ?? to keep 0
-            onChange={(e) => onFilterChange("minBudget", e.target.value)}
-            placeholder="Min"
-            className="px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
-          />
-          <input
-            type="number"
-            min="0"
-            value={maxBudget ?? ""}  // ✅ use ?? to keep 0
-            onChange={(e) => onFilterChange("maxBudget", e.target.value)}
-            placeholder="Max"
-            className="px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
-          />
-        </div>
-      </div>
-
-      {/* Sort By */}
-      <div className="filter-group">
-        <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
-          Sort By
-        </label>
-        <select
-          value={sortBy}
-          onChange={(e) => onFilterChange("sortBy", e.target.value)}
-          className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
-        >
-          <option value="rankingScore">Best Match</option>
-          <option value="rating">Rating</option>
-          <option value="price">Price</option>
-          <option value="reviewCount">Most Reviews</option>
-        </select>
-      </div>
+      {/* Trigger search */}
+      <button
+        onClick={onSearch}
+        className="w-full bg-[#CCAB4A] text-white py-2 sm:py-3 px-4 rounded-lg font-semibold hover:bg-[#ab8f39] transition-colors duration-200 text-sm sm:text-base"
+      >
+        Search
+      </button>
     </div>
   );
 };

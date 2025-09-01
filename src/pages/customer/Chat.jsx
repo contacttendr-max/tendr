@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
 import user from "../../assets/ui/user-avatar.png";
 import partyBackground from "../../assets/ui/party-bg.jpeg";
-import { useLocation } from "react-router-dom";
 
 const compileFiltersMessage = (filters = {}) => {
   return `
@@ -21,8 +20,12 @@ Are you available?
 const Chat = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { vendor, filters } = location.state || {};
 
+  // fallback so /chat works even without state
+  const fallbackVendor = { _id: "concierge", name: "Tendr Concierge", approved: true };
+  const { vendor: navVendor, filters: navFilters } = location.state || {};
+  const vendor = navVendor || fallbackVendor;
+  const filters = navFilters || {};
   const vendorApproved = vendor?.approved || false;
 
   const [message, setMessage] = useState("");
@@ -30,19 +33,14 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [hasSentInitialMessage, setHasSentInitialMessage] = useState(false);
 
-  // Send filters automatically after vendor approval
   useEffect(() => {
     if (filters && !hasSentInitialMessage && Object.keys(filters).length > 0) {
-      const initialMessage = {
-        text: compileFiltersMessage(filters),
-        sender: "user",
-      };
+      const initialMessage = { text: compileFiltersMessage(filters), sender: "user" };
       setMessages([initialMessage]);
       setHasSentInitialMessage(true);
     }
   }, [hasSentInitialMessage, filters]);
 
-  // Handle User Typing
   const handleUserTyping = (e) => {
     setMessage(e.target.value);
     clearTimeout(window.vendorTypingTimeout);
@@ -51,20 +49,19 @@ const Chat = () => {
     }, 1000);
   };
 
-  // Handle Send Message
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!vendorApproved) return; // Ensure chat is not sent unless approved
+    if (!vendorApproved) return;
 
     if (message.trim()) {
       const userMessage = { text: message, sender: "user" };
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setMessages((prev) => [...prev, userMessage]);
       setMessage("");
 
       setIsVendorTyping(true);
       setTimeout(() => {
-        setMessages((prevMessages) => [
-          ...prevMessages,
+        setMessages((prev) => [
+          ...prev,
           {
             text: "Thank you for your message! I'll get back to you shortly with a detailed response.",
             sender: "vendor",
@@ -110,21 +107,16 @@ const Chat = () => {
 
       {/* Chat Section */}
       <div className="flex-1 flex flex-col p-4 overflow-y-auto space-y-4 bg-white bg-opacity-40 rounded-t-2xl shadow-lg mb-20">
+        <div className="self-center text-sm text-gray-700">
+          Chatting with <b>{vendor?.name || "Vendor"}</b>
+        </div>
+
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`${
-              msg.sender === "user" ? "self-end" : "self-start"
-            } mb-4`}
-          >
+          <div key={idx} className={`${msg.sender === "user" ? "self-end" : "self-start"} mb-4`}>
             <div
-              className={`${
-                msg.sender === "user" ? "bg-yellow-100" : "bg-white"
-              } p-3 rounded-2xl shadow-md max-w-xs`}
+              className={`${msg.sender === "user" ? "bg-yellow-100" : "bg-white"} p-3 rounded-2xl shadow-md max-w-xs`}
             >
-              <p className="text-sm text-gray-700 whitespace-pre-line">
-                {msg.text}
-              </p>
+              <p className="text-sm text-gray-700 whitespace-pre-line">{msg.text}</p>
             </div>
           </div>
         ))}
@@ -141,33 +133,22 @@ const Chat = () => {
 
       {/* Chat Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-white shadow-inner p-4 z-50">
-        <form
-          onSubmit={handleSendMessage}
-          className="flex items-center space-x-2"
-        >
+        <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
           <input
             type="text"
-            placeholder={
-              vendorApproved
-                ? "Write your requirements"
-                : "Waiting for vendor approval..."
-            }
+            placeholder={vendorApproved ? "Write your requirements" : "Waiting for vendor approval..."}
             value={message}
             onChange={handleUserTyping}
             disabled={!vendorApproved}
             className={`flex-1 p-3 rounded-full border ${
               vendorApproved ? "border-gray-300" : "border-gray-200 bg-gray-100"
-            } focus:outline-none focus:ring-2 ${
-              vendorApproved ? "focus:ring-yellow-400" : ""
-            } text-sm`}
+            } focus:outline-none focus:ring-2 ${vendorApproved ? "focus:ring-yellow-400" : ""} text-sm`}
           />
           <button
             type="submit"
             disabled={!vendorApproved}
             className={`${
-              vendorApproved
-                ? "bg-yellow-400 hover:bg-yellow-500"
-                : "bg-gray-300 cursor-not-allowed"
+              vendorApproved ? "bg-yellow-400 hover:bg-yellow-500" : "bg-gray-300 cursor-not-allowed"
             } text-white font-semibold px-6 py-3 rounded-full text-sm`}
           >
             Send

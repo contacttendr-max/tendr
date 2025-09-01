@@ -22,12 +22,12 @@ const ListingsNav = () => {
       <div className="flex items-center justify-between">
         {/* Left Section - Back Button */}
         <div className="flex items-center space-x-3 sm:space-x-4">
-          <button
+          {/* <button
             onClick={() => navigate("/")}
             className="w-8 h-8 sm:w-10 sm:h-10 bg-[#CCAB4A] hover:bg-[#ab8f39] transition-colors duration-200 rounded-full flex items-center justify-center"
           >
             <WestIcon className="text-white text-sm sm:text-base" />
-          </button>
+          </button> */}
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
             Vendor Listings
           </h1>

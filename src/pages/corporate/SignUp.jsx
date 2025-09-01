@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
-import TendrPremiumBanner from "../../components/TendrPremiumBanner";
+// import TendrPremiumBanner from "../../components/TendrPremiumBanner";
 import PricingPlans from "../../components/PricingPlans";
 
 export default function CorporateSignup() {
@@ -640,7 +640,7 @@ export default function CorporateSignup() {
       </div>
 
       {/* Tendr Premium Promotional Banner */}
-      <TendrPremiumBanner />
+      {/* <TendrPremiumBanner /> */}
 
       {/* Pricing Plans */}
       <PricingPlans />
