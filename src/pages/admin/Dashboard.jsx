@@ -8,7 +8,7 @@ import Dashboards_Nav from "../../components/Dashboards_Nav";
 import { LineChart_UserVendorGrowth_AdminDashboard, LineChart_BookingsPerMonth_AdminDashboard, Doughnut_BookingCategory_AdminDashboard, Doughnut_BookingCity_AdminDashboard, Doughnut_VendorCity_AdminDashboard, Doughnut_UserCity_AdminDashboard, LineChart_UserNew_AdminDashboard } from "../../components/Charts_Dashboards";
 import MenuIcon from '@mui/icons-material/Menu';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-// add MessagesSquare here
+
 import { LayoutDashboard, IndianRupee, TicketSlash, ChartColumnDecreasing, UserRound, BriefcaseBusiness, BadgeIndianRupee, MessageCircle, MessagesSquare, CalendarCheck2, CalendarClock, CalendarFold, CalendarX2, Camera, Music, SprayCan, HandPlatter, Store, Handshake, MonitorCheck, MonitorX, UserPlus } from 'lucide-react';
 
 
@@ -202,7 +202,7 @@ const userChats = [
   { name: "Franco", preview: "Check this out", time: "10:20 AM", unread: 3, initialsUser: "FW" },
 ];
 
-const sidebar_arr = [
+const sidebar_arr = [ 
   {
     label: 'Dashboard',
     icon: <LayoutDashboard size={22} />,
