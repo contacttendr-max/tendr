@@ -149,6 +149,7 @@ export const getVendors = async (filters = {}) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: 'include',
     });
 
     const contentType = response.headers.get("Content-Type");
@@ -177,6 +178,7 @@ export const getVendorById = async (vendorId) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: 'include',
     });
 
     const contentType = response.headers.get("Content-Type");
