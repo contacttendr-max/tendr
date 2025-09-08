@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Home.css';
 import tendrLogo from '../../assets/logos/tendr-logo-secondary.png';
 import PlatformFlow from "../../components/PlatformFlow";
+import BasicSpeedDial from '../../components/BasicSpeedDial';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -48,6 +49,21 @@ const Home = () => {
   const handleCorporateClick = () => {
     navigate('/corporate-signup');
   };
+
+  const handledropdownChange = (event) => {
+    const selectedValue = event.target.value;
+    if (selectedValue === 'timeline-picker') {
+      navigate('/timeline-picker');
+    } else if (selectedValue === 'aftermovie') {
+      navigate('/aftermovie');
+    }
+    else if(selectedValue =='checklist'){
+       navigate('/checklist-picker');
+    }
+    else if(selectedValue =='invitation'){
+       navigate('/invitation');
+    }
+  }
 
   const services = [
     {
@@ -124,12 +140,23 @@ const Home = () => {
   return (
     <div className="App">
       {/* Navigation */}
-      <nav className={`nav-container ${scrolled ? 'scrolled' : ''}`}>
+      <div className={`fixed bottom-2 right-1 z-50 transform transition-all duration-500 ${scrolled ? "opacity-100 scale-100" : "opacity-0 scale-75 pointer-events-none"}`}>
+        <BasicSpeedDial />
+      </div>
+      <nav className={`fixed top-0 left-0 w-full z-50 bg-white shadow transition-transform duration-500 ease-in-out
+          ${scrolled ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"}`}>
         <div className="nav">
           <a href="#" className="logo" onClick={handleLogoClick}>
             <img src={tendrLogo} alt="Tendr - We Curate You Celebrate" className="logo-img" />
           </a>
           <div className="nav-buttons">
+            <select className="mx-10 "onClick={handledropdownChange}>
+              <option value="" disabled selected>Tendr Utilities</option>
+              <option value="checklist">Checklist</option>
+              <option value="timeline-picker">Timeline</option>
+              <option value="aftermovie">Aftermovie</option>
+              <option value="invitaion">Invitaion Flyers</option>
+            </select>
             <a 
               href="https://wa.me/1234567890" 
               className="contact-icon whatsapp-icon" 

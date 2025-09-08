@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft, Users, DollarSign, MapPin, Calendar, Music, Camera, Utensils, X, Plus, CheckCircle, Shield, Award, HeartHandshake, Gift, Check, Minus, Star, Clock, Phone, Mail } from 'lucide-react';
+import BasicSpeedDial from '../../components/BasicSpeedDial';
 
 const GroupBookingPage = () => {
   const navigate = useNavigate();
@@ -272,6 +273,7 @@ const GroupBookingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-rose-100">
+      <BasicSpeedDial/>
       {/* Header */}
       <div className="bg-white shadow-sm px-3 sm:px-6 py-3 sm:py-4">
         <div className="max-w-6xl mx-auto flex justify-between items-center">

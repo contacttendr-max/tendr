@@ -28,6 +28,7 @@ import {
 
 import MakeAGroup_Nav from "../../components/MakeAGroup_Nav.jsx";
 import EventFormSummary from "../../components/EventFormSummary.jsx";
+import BasicSpeedDial from "../../components/BasicSpeedDial.jsx";
 
 const EventPlanning = () => {
   const navigate = useNavigate();
@@ -200,6 +201,7 @@ const EventPlanning = () => {
   if (showVendorScreen) {
     return (
       <div className="min-h-screen bg-[#fff0ea] ">
+        <BasicSpeedDial />
         {/* Header */}
         <div className="navbar bg-white">
           <MakeAGroup_Nav />

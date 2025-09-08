@@ -29,7 +29,15 @@ import CancellationPolicy from "./pages/info/CancellationPolicy";
 import ContactUs from "./pages/info/ContactUs.jsx";
 
 import ChooseBooking from "./pages/customer/ChooseBooking";
-import CorporateDashboard from "./pages/corporate/Dashboard.jsx";
+import AltBookingFlow from "./pages/customer/AltBookingFlow";
+
+import CorporateDashboard from './pages/corporate/Dashboard.jsx';
+import TimelineBuilder from './pages/timeline/TimelineBuilder';
+import Timeline from './pages/timeline/Timeline';
+import Checkbox from './pages/checkbox/Checkbox';
+import TimelinePicker from './pages/timeline/TimelinePicker';
+import CheckboxPicker from './pages/checkbox/CheckboxPicker.jsx';
+import PrebuiltCheckbox from './pages/checkbox/PrebuiltCheckbox.jsx';
 
 // only chat list for customers (no Conversation/ActiveChat components)
 import CustomerChatList from "./pages/customer/Chats";
@@ -40,6 +48,26 @@ const router = createBrowserRouter([
     path: "/", 
     element: <Home />, 
     errorElement: <ErrorPage /> 
+  },
+  {
+    path: '/timeline-picker',
+    element: <TimelinePicker />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/timeline',
+    element: <TimelineBuilder />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/prebuilt-timeline',
+    element: <Timeline />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/checklist',
+    element: <Checkbox />,
+    errorElement: <ErrorPage />,
   },
   
 { 
@@ -84,18 +112,21 @@ const router = createBrowserRouter([
     element: <UserDashboard />, 
     errorElement: <ErrorPage /> 
   },
-
-  { 
-    path: "/corporate-login", 
-    element: <CorporateLogin />, 
-    errorElement: <ErrorPage /> 
+  {
+    path: '/corporate-signup',
+    element: <CorporateSignup />,
+    errorElement: <ErrorPage />,
   },
-
-  { 
-    path: "/corporate-signup", 
-    element: <CorporateSignup />, 
-    errorElement: <ErrorPage /> 
-  },
+  //     {
+  //       path: '/login',
+  //   element: <CustomerAuth />,
+  //   errorElement: <ErrorPage />
+  // },
+  //     {
+  //   path: '/signup',
+  //   element: <CustomerAuth />,
+  //   errorElement: <ErrorPage />
+  // },
 
   { 
     path: "/VendorRegistration", 
@@ -215,6 +246,16 @@ const router = createBrowserRouter([
     element: <NotFound />, 
     errorElement: <ErrorPage /> 
   },
+  {
+    path: '/checklist-picker',
+    element: <CheckboxPicker />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/prebuilt-checklist',
+    element: <PrebuiltCheckbox />,
+    errorElement: <ErrorPage />
+  }
 ]);
 
 export default router;

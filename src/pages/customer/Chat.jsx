@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
 import user from "../../assets/ui/user-avatar.png";
 import partyBackground from "../../assets/ui/party-bg.jpeg";
+import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const compileFiltersMessage = (filters = {}) => {
   return `
@@ -82,6 +83,7 @@ const Chat = () => {
         backgroundAttachment: "fixed",
       }}
     >
+      <BasicSpeedDial />
       {/* Navbar */}
       <nav className="flex justify-between items-center px-6 py-4 shadow-md bg-white sticky top-0 z-50">
         <img

@@ -5,6 +5,7 @@ import logo from "../../assets/logos/tendr-logo-secondary.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearError } from '../../redux/authSlice';
+import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const Auth = () => {
   const location = useLocation();
@@ -157,6 +158,7 @@ const Auth = () => {
         backgroundImage: `url(${isSignup ? signupbackground : loginbackground})`,
       }}
     >
+      <BasicSpeedDial/>
       <div className="absolute inset-0 bg-[#CCAB4A] opacity-30 z-0" />
 
       <div className="flex-grow flex items-center justify-center px-3 sm:px-4 pt-4 relative z-10">

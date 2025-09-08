@@ -7,6 +7,7 @@ import {
   clearError,
 } from "../../redux/authSlice";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
+import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const OTPPage = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -194,6 +195,7 @@ const OTPPage = () => {
 
   return (
     <div className="w-screen min-h-screen flex flex-col bg-[#E8DED1]">
+      <BasicSpeedDial/>
       <div className="flex-grow flex items-center justify-center p-4">
         <div className="bg-[#F7F4EF] rounded-2xl shadow-lg w-[454px] h-[530px] p-6 flex flex-col items-center">
           <img

@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { getVendors } from "../../apis/vendorApi";
 import CompareBar from "../../components/CompareBar";
 import CompareModal from "../../components/CompareModal";
+import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const VendorList = () => {
   const navigate = useNavigate();
@@ -106,6 +107,7 @@ const VendorList = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <BasicSpeedDial/>
       <ListingsNav />
 
       <div className="flex flex-col lg:flex-row">

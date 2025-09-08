@@ -30,6 +30,7 @@ import {
   FiX
 } from 'react-icons/fi';
 import EventCreationModal from '../../components/EventCreationModal';
+import BasicSpeedDial from '../../components/BasicSpeedDial';
 
 const CorporateDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -514,6 +515,7 @@ const CorporateDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <BasicSpeedDial />
       {/* Header */}
       <div className="bg-white shadow-sm px-3 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">

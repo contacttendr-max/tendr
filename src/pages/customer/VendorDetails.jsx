@@ -23,6 +23,7 @@ import desert from "../../assets/vendor-details/desert-catering.jpeg";
 import live_counter from "../../assets/vendor-details/live_counter-catering.jpeg";
 
 import { getVendorById } from "../../apis/vendorApi";
+import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const VendorDetailsPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -193,6 +194,7 @@ const VendorDetailsPage = () => {
 
   return (
     <div className="">
+      <BasicSpeedDial/>
       {/* Navbar */}
       <div className="navbar border-b-[1px] border-[#CCAB4A]">
         <ListingsNav />

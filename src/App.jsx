@@ -6,6 +6,8 @@ import router from "./router";
 import store from "./store";
 import ErrorBoundary from "./components/ErrorBoundary";
 import FloatingChatButton from "./components/FloatingChatButton";
+import BasicSpeedDial from "./components/BasicSpeedDial";
+
 
 function App() {
   return (
@@ -13,6 +15,7 @@ function App() {
       <Provider store={store}>
         <RouterProvider router={router} />
         <FloatingChatButton />
+
       </Provider>
     </ErrorBoundary>
   );
