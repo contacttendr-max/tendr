@@ -4,6 +4,7 @@ import './Home.css';
 import tendrLogo from '../../assets/logos/tendr-logo-secondary.png';
 import PlatformFlow from "../../components/PlatformFlow";
 import BasicSpeedDial from '../../components/BasicSpeedDial';
+import Footer from '../../components/Footer';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -280,73 +281,7 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          {/* Left Column */}
-          <div className="footer-brand">
-            <h1>TENDR</h1>
-            <p>Empowering your celebrations with curated planning and unforgettable experiences.</p>
-            <br />
-            <p><strong>Email:</strong> <a href="mailto:contacttendr@gmail.com">contacttendr@gmail.com</a></p>
-            <p><strong>Phone:</strong> +91-9211668427</p>
-            <p><strong>Address:</strong> DELHI NCR</p>
-            <button className="back-to-top" onClick={handleLogoClick}>↑ Back to Top</button>
-          </div>
-
-          {/* Services */}
-          <div className="footer-col">
-            <h3>Services</h3>
-            <ul>
-              <li><a href="#">Corporate Events</a></li>
-              <li><a href="#">Photography</a></li>
-              <li><a href="#">Private Parties</a></li>
-              <li><a href="#">Decoration</a></li>
-              <li><a href="#">Catering</a></li>
-              <li><a href="#">DJ</a></li>
-            </ul>
-          </div>
-
-          {/* Platform */}
-          <div className="footer-col">
-            <h3>Platform</h3>
-            <ul>
-              <li><a href="#">Event Planning</a></li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div className="footer-col">
-            <h3>Company</h3>
-            <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Careers</a></li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="footer-col">
-            <h3>Support</h3>
-            <ul>
-              <li><a href="/contact-us">Contact Us</a></li>
-              <li><a href="/refund-policy">Refund Policy</a></li>
-              <li><a href="/cancellation-policy">Cancellation Policy</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Social Media */}
-        <div className="footer-social">
-          <a href="#"><i className="icon">📘</i></a>
-          <a href="#"><i className="icon">📸</i></a>
-          <a href="#"><i className="icon">🐦</i></a>
-          <a href="#"><i className="icon">🎥</i></a>
-        </div>
-
-        {/* Bottom */}
-        <div className="footer-bottom">
-          <p>© 2025 tendr. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

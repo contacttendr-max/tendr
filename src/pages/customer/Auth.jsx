@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { clearError } from '../../redux/authSlice';
 import BasicSpeedDial from "../../components/BasicSpeedDial";
+import Footer from "../../components/Footer";
 
 const Auth = () => {
   const location = useLocation();
@@ -413,27 +414,7 @@ const Auth = () => {
         </div>
       </div>
 
-      <footer className="w-full text-black text-xs sm:text-sm py-2 sm:py-3 px-3 sm:px-4 text-center bg-opacity-60 mt-6 sm:mt-8">
-        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-4 font-semibold">
-          <span>tendr ©</span>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Support
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Help Center
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Vendor Support
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Get in touch
-          </a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

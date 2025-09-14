@@ -156,12 +156,12 @@ body {
 /* Hero Section */
 .hero {
     background: 
-        linear-gradient(135deg, rgba(139, 69, 19, 0.4) 0%, rgba(160, 82, 45, 0.4) 100%),
-        url('https://images.unsplash.com/photo-1511578314322-379afb476865?w=1920&h=1080&fit=crop');
+        linear-gradient(120deg, rgba(232, 157, 103, 0.4) 0%, rgba(185, 138, 59, 0.245) 20%),
+        url('../../assets/backgrounds/bg.jpg');
     background-size: cover;
-    background-position: center;
+    background-position: center ;
     background-attachment: fixed;
-    color: #FFFFFF;
+    color: #FAEBD7;
     padding: 140px 0 100px;
     margin-top: 80px;
     position: relative;
@@ -194,13 +194,13 @@ body {
 }
 
 .hero-content h1 {
-    font-size: 4rem;
+    font-size: 3.8rem;
     font-weight: 900;
     margin-bottom: 2rem;
-    letter-spacing: -2px;
-    line-height: 1.1;
+    letter-spacing: -1px;
+    line-height: 1.5;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #FFFFFF, #F5F5DC, #FFFFFF);
+    background: linear-gradient(45deg, #FFFFFF, #f8f8da, #FFFFFF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -213,7 +213,7 @@ body {
     letter-spacing: -2px;
     line-height: 1.1;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #FFFFFF, #F5F5DC, #FFFFFF);
+    background: linear-gradient(45deg, #FFFFFF, #fffff5, #FFFFFF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -685,6 +685,10 @@ body {
     z-index: 1;
 }
 
+.footer-container strong {
+    color: #A0522D;
+}
+
 .footer-content {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -832,7 +836,7 @@ body {
 }
 
 .footer-brand h1{
-  color: #f0c674;
+  color: #A0522D;
   margin-bottom: 15px;
     font-size: 1.8rem;
     font-weight: 700;
@@ -841,7 +845,7 @@ body {
 .footer-brand p {
   margin: 6px 0;
   font-size: 0.95rem;
-  color: #aaa; 
+  color:#2e1b0f; ; 
 }
 
 .footer-brand a {
@@ -884,7 +888,7 @@ body {
 }
 
 .footer-col li {
-  color: #CEA650;
+  color: #2e1b0f;
     text-decoration: none;
     transition: all 0.3s;
     font-weight: 400;
@@ -906,6 +910,7 @@ body {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     font-weight: 700;
+    color:#A0522D;
 }
 
 /* Social icons */
@@ -924,7 +929,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
-    color: #8B4513;
+    color: #A0522D;
     text-decoration: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background: rgba(255, 255, 255, 0.3);
@@ -951,7 +956,7 @@ body {
 }
 
 .footer-bottom p {
-  color: #f0c674;
+  color: #6b3d1c;
   text-decoration: none;
   margin: 0 5px;
 }

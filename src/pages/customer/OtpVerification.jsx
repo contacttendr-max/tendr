@@ -8,6 +8,7 @@ import {
 } from "../../redux/authSlice";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
 import BasicSpeedDial from "../../components/BasicSpeedDial";
+import Footer from "../../components/Footer";
 
 const OTPPage = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -270,27 +271,7 @@ const OTPPage = () => {
         </div>
       </div>
 
-      <footer className="w-full text-black text-sm py-3 px-4 text-center bg-opacity-60">
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 font-semibold">
-          <span>tendr ©</span>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Support
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Help Center
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Vendor Support
-          </a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer">
-            Get in touch
-          </a>
-        </div>
-      </footer>
+      <Footer/>
     </div>
   );
 };

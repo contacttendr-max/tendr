@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import loginbackground from "../../assets/backgrounds/login-bg.png";
 import logo from "../../assets/logos/tendr-logo-secondary.png";
+import Footer from "../../components/Footer";
 
 const CorporateLogin = () => {
   const navigate = useNavigate();
@@ -218,19 +219,7 @@ const CorporateLogin = () => {
         </div>
       </div>
 
-      <footer className="w-full text-gray-400 text-sm py-4 px-4 text-center bg-opacity-60 mt-8">
-        <div className="flex flex-wrap justify-center gap-4 font-medium">
-          <span>tendr ©</span>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer hover:text-gray-600">Support</a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer hover:text-gray-600">Help Center</a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer hover:text-gray-600">Corporate Support</a>
-          <span>|</span>
-          <a href="#" className="hover:underline cursor-pointer hover:text-gray-600">Get in touch</a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
