@@ -1,47 +1,73 @@
+// src/components/FloatingChatButton.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import router from "../router";
 import ChatVendorPickerModal from "./ChatVendorPickerModal";
+import useConversations from "../hooks/useConversations";
 
-/**
- * Floating Chat Button (no layout required)
- * Behaviour:
- *  - bookingType empty  -> alert to select booking type / fill form
- *  - "you-do-it"       -> open center popup to pick vendor, then /chat with state
- *  - "let-us-do-it"    -> open /chat directly with resolved vendor
- * Auto-hides on /chat and /chats.
- */
-export default function FloatingChatButton({
-  hideOnRoutes = ["/chat", "/chats"],
-}) {
-  // Redux reads
+function SimpleChoiceModal({ open, onClose, onPick }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center" aria-modal="true" role="dialog">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className="relative z-[61] w-[92%] max-w-sm rounded-2xl bg-white p-5 shadow-2xl border border-gray-200">
+        <div className="text-lg font-semibold mb-3">Start a chat</div>
+        <div className="text-sm text-gray-600 mb-5">Who would you like to chat with?</div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => onPick("vendor")}
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-left hover:bg-gray-50 active:scale-[.99] transition"
+          >
+            <div className="font-medium">Vendor chat</div>
+            <div className="text-xs text-gray-500">Talk directly with a vendor about your event.</div>
+          </button>
+
+        <button
+            onClick={() => onPick("support")}
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-left hover:bg-gray-50 active:scale-[.99] transition"
+          >
+            <div className="font-medium">Support</div>
+            <div className="text-xs text-gray-500">Chat with Tendr Support / Concierge.</div>
+          </button>
+        </div>
+
+        <button onClick={onClose} className="mt-4 w-full text-center text-sm text-gray-500 hover:text-gray-700">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default function FloatingChatButton({ hideOnRoutes = ["/chat", "/chats"] }) {
   const bookingType = useSelector((s) => s?.eventPlanning?.bookingType) || "";
   const selectedVendors = useSelector((s) => s?.eventPlanning?.selectedVendors) || [];
   const formFilters = useSelector((s) => s?.eventPlanning?.formData) || {};
   const activeVendor = useSelector((s) => s?.chat?.activeVendor) || null;
   const unreadCount = useSelector((s) => s?.chat?.unreadTotal || 0);
-  const chatThreads = useSelector((s) => s?.chat?.threads || []); // optional [{vendor, lastMessage, unreadCount}]
+  const chatThreads = useSelector((s) => s?.chat?.threads || []);
 
-  // Path tracking to hide on chat pages
+  // Load conversations from API (now safe if 404)
+  const { vendors: apiVendors } = useConversations({ enabled: true });
+
   const [path, setPath] = useState(() => router.state.location.pathname);
   useEffect(() => {
     const unsub = router.subscribe(() => setPath(router.state.location.pathname));
     return unsub;
   }, []);
-
   const shouldHide = useMemo(
     () => hideOnRoutes.some((base) => path === base || path.startsWith(base + "/")),
     [path, hideOnRoutes]
   );
 
-  // Popup state
+  const [choiceOpen, setChoiceOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Build vendor list for the popup:
-  // 1) Prefer chat threads' vendors (with lastMessage/unread)
-  // 2) Else use selectedVendors from eventPlanning
-  // 3) Else fallback to sample vendors
+  // Prefer server vendors, then existing chat threads, then selected vendors
   const popupVendors = useMemo(() => {
+    if (Array.isArray(apiVendors) && apiVendors.length) return apiVendors;
+
     if (Array.isArray(chatThreads) && chatThreads.length) {
       return chatThreads.map((t) => ({
         _id: t.vendor?._id ?? t.vendorId ?? t.id,
@@ -51,6 +77,7 @@ export default function FloatingChatButton({
         approved: t.vendor?.approved ?? true,
       }));
     }
+
     if (Array.isArray(selectedVendors) && selectedVendors.length) {
       return selectedVendors.map((v) => ({
         _id: v._id || v.id,
@@ -60,33 +87,10 @@ export default function FloatingChatButton({
         approved: true,
       }));
     }
-    // Fallback sample vendors
-    return [
-      {
-        _id: "sample1",
-        name: "Chopra Decors",
-        lastMessage: "Floral + lighting within budget.",
-        unreadCount: 1,
-        approved: true,
-      },
-      {
-        _id: "sample2",
-        name: "Zest Caterers",
-        lastMessage: "Menu options for 250 pax.",
-        unreadCount: 0,
-        approved: true,
-      },
-      {
-        _id: "sample3",
-        name: "Pixel Photographers",
-        lastMessage: "Wedding portfolio sent.",
-        unreadCount: 3,
-        approved: true,
-      },
-    ];
-  }, [chatThreads, selectedVendors]);
 
-  // Resolve vendor for let-us-do-it
+    return [];
+  }, [apiVendors, chatThreads, selectedVendors]);
+
   const resolveActiveVendor = () => {
     if (activeVendor && (activeVendor._id || activeVendor.id)) {
       return { ...activeVendor, approved: activeVendor.approved ?? true };
@@ -97,8 +101,17 @@ export default function FloatingChatButton({
     return { _id: "concierge", name: "Tendr Concierge", approved: true };
   };
 
-  // Handlers
-  const handleButtonClick = () => {
+  const handleButtonClick = () => setChoiceOpen(true);
+
+  const handlePickChoice = (choice) => {
+    setChoiceOpen(false);
+
+    if (choice === "support") {
+      const vendor = { _id: "concierge", name: "Tendr Support", approved: true };
+      router.navigate("/chat", { state: { vendor, filters: formFilters } });
+      return;
+    }
+
     if (!bookingType) {
       alert("Please select a booking type or fill the form first.");
       return;
@@ -110,8 +123,7 @@ export default function FloatingChatButton({
       return;
     }
 
-    // "you-do-it" -> open vendor picker modal
-    setPickerOpen(true);
+    setPickerOpen(true); // "you-do-it" → open vendor picker
   };
 
   const handlePickVendor = (vendor) => {
@@ -126,15 +138,7 @@ export default function FloatingChatButton({
       <button
         aria-label="Open chat"
         onClick={handleButtonClick}
-        className="
-          fixed bottom-5 right-5 z-50
-          flex items-center gap-2
-          rounded-full shadow-lg
-          bg-yellow-400 hover:bg-yellow-500 active:scale-95
-          text-black
-          px-5 py-3
-          transition
-        "
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full shadow-lg bg-yellow-400 hover:bg-yellow-500 active:scale-95 text-black px-5 py-3 transition"
         style={{ boxShadow: "0 12px 28px rgba(0,0,0,0.18)" }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -149,7 +153,8 @@ export default function FloatingChatButton({
         )}
       </button>
 
-      {/* Centered popup for "you-do-it" */}
+      <SimpleChoiceModal open={choiceOpen} onClose={() => setChoiceOpen(false)} onPick={handlePickChoice} />
+
       <ChatVendorPickerModal
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}

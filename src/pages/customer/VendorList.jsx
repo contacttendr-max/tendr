@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import { getVendors } from "../../apis/vendorApi";
 import CompareBar from "../../components/CompareBar";
 import CompareModal from "../../components/CompareModal";
-import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 const VendorList = () => {
   const navigate = useNavigate();
@@ -56,6 +55,9 @@ const VendorList = () => {
     setCompareSelected((prev) => prev.filter((v) => v._id !== id));
   const clearCompare = () => setCompareSelected([]);
 
+  // NEW: modal to show selected vendors from top picks button
+  const [isSelectedModalOpen, setIsSelectedModalOpen] = useState(false);
+
   // fetch on changes
   useEffect(() => {
     if (!locationTypeState || !serviceTypeState) return;
@@ -68,7 +70,7 @@ const VendorList = () => {
       sortOrder,
       page: 1,
       limit: 10,
-      serviceFilters: secondaryFilters, // <- send selected secondary filters (keys depend on serviceType)
+      serviceFilters: secondaryFilters, // <- send selected secondary filters
     };
 
     getVendors(payload)
@@ -81,33 +83,35 @@ const VendorList = () => {
       .finally(() => setIsLoading(false));
   }, [sortBy, sortOrder, secondaryFilters, locationTypeState, serviceTypeState]);
 
-  const handleShowMore = () => {
-    const nextPage = currentPage + 1;
+  const fetchPage = (pageNum) => {
     setIsLoading(true);
-
     const payload = {
       location: locationTypeState,
       serviceTypes: [serviceTypeState],
       sortBy,
       sortOrder,
-      page: nextPage,
+      page: pageNum,
       limit: 10,
       serviceFilters: secondaryFilters,
     };
-
     getVendors(payload)
       .then((data) => {
-        setVendorList((prev) => [...prev, ...(data.vendors || [])]);
+        if (pageNum === 1) {
+          setVendorList(data.vendors || []);
+        } else {
+          setVendorList((prev) => [...prev, ...(data.vendors || [])]);
+        }
         setPaginationInfo(data.pagination || {});
-        setCurrentPage(nextPage);
+        setCurrentPage(pageNum);
       })
-      .catch((err) => console.error("Error fetching more vendors:", err))
+      .catch((err) => console.error("Error fetching vendors:", err))
       .finally(() => setIsLoading(false));
   };
 
+  const handleShowMore = () => fetchPage(currentPage + 1);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <BasicSpeedDial/>
       <ListingsNav />
 
       <div className="flex flex-col lg:flex-row">
@@ -167,7 +171,6 @@ const VendorList = () => {
                 vendors={vendorList}
                 onFiltersChange={setSecondaryFilters}
               />
-
             </div>
 
             {/* Apply Filters */}
@@ -201,13 +204,63 @@ const VendorList = () => {
 
         {/* Main */}
         <div className="flex-1 p-4 lg:p-6">
+          {/* Header / Top picks bar with button */}
           <div className="mb-6">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
-              {serviceTypeState || "All"} Vendors
-            </h1>
-            <p className="text-sm sm:text-base text-gray-600 ">
-              {vendorList.length} vendors found in {locationTypeState || "all locations"}
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1">
+                  {serviceTypeState || "All"} Vendors
+                </h1>
+                
+              </div>
+
+              {/* NEW BUTTON */}
+              <button
+                onClick={() => setIsSelectedModalOpen(true)}
+                disabled={compareSelected.length === 0}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm sm:text-base transition ${
+                  compareSelected.length === 0
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "bg-[#CCAB4A] text-white hover:bg-[#ab8f39]"
+                }`}
+                title={
+                  compareSelected.length === 0
+                    ? "No vendors selected yet"
+                    : "Open selected vendors"
+                }
+              >
+                Show Selected Vendors
+                {compareSelected.length > 0 && (
+                  <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/20 px-2 text-white">
+                    {compareSelected.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Chips row like "Top picks for …" (optional, basic) */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {serviceTypeState && (
+                <span className="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  {serviceTypeState}
+                </span>
+              )}
+              {locationTypeState && (
+                <span className="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  {locationTypeState}
+                </span>
+              )}
+              {dateState && (
+                <span className="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  {dateState}
+                </span>
+              )}
+              {guestCountState ? (
+                <span className="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  {guestCountState} guests
+                </span>
+              ) : null}
+            </div>
           </div>
 
           <VendorList_ListingPage
@@ -232,8 +285,8 @@ const VendorList = () => {
             <div className="mt-8 flex justify-center">
               <div className="flex space-x-2">
                 <button
-                  onClick={() => handleShowMore()}
-                  disabled={isLoading}
+                  onClick={() => fetchPage(Math.max(1, currentPage - 1))}
+                  disabled={isLoading || currentPage === 1}
                   className="px-3 py-2 text-sm sm:text-base bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
@@ -246,11 +299,14 @@ const VendorList = () => {
                     return (
                       <button
                         key={pageNum}
-                        onClick={() => handleShowMore()}
-                        className={`px-3 py-2 text-sm sm:text-base rounded-lg ${currentPage === pageNum
+                        onClick={() =>
+                          pageNum > currentPage ? handleShowMore() : fetchPage(pageNum)
+                        }
+                        className={`px-3 py-2 text-sm sm:text-base rounded-lg ${
+                          currentPage === pageNum
                             ? "bg-[#CCAB4A] text-white"
                             : "bg-white border border-gray-300 hover:bg-gray-50"
-                          }`}
+                        }`}
                       >
                         {pageNum}
                       </button>
@@ -259,8 +315,12 @@ const VendorList = () => {
                 )}
 
                 <button
-                  onClick={() => handleShowMore()}
-                  disabled={isLoading}
+                  onClick={() => fetchPage(currentPage + 1)}
+                  disabled={
+                    isLoading ||
+                    (paginationInfo.totalPages &&
+                      currentPage >= paginationInfo.totalPages)
+                  }
                   className="px-3 py-2 text-sm sm:text-base bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
@@ -271,7 +331,7 @@ const VendorList = () => {
         </div>
       </div>
 
-      {/* Compare */}
+      {/* Compare (existing) */}
       <CompareBar
         selected={compareSelected}
         onClear={clearCompare}
@@ -284,9 +344,114 @@ const VendorList = () => {
         vendors={compareSelected}
       />
 
+      {/* NEW: Selected Vendors Modal */}
+      {isSelectedModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+          onClick={() => setIsSelectedModalOpen(false)}
+        >
+          <div
+            className="w-[95%] max-w-3xl bg-white rounded-2xl shadow-xl p-5 sm:p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                Selected Vendors ({compareSelected.length})
+              </h3>
+              <button
+                className="px-3 py-1.5 text-sm rounded-lg bg-gray-100 hover:bg-gray-200"
+                onClick={() => setIsSelectedModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            {compareSelected.length === 0 ? (
+              <div className="text-gray-600 text-sm">
+                No vendors selected yet. Use the “Compare” toggle on vendor cards.
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {compareSelected.map((v) => (
+                    <div
+                      key={v._id}
+                      className="border border-gray-200 rounded-xl p-4 flex gap-4 items-start"
+                    >
+                      <img
+                        src={
+                          v?.coverImage ||
+                          v?.images?.[0] ||
+                          "https://placehold.co/160x120?text=Vendor"
+                        }
+                        alt={v?.name || "Vendor"}
+                        className="w-28 h-20 object-cover rounded-lg bg-gray-100"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-800 truncate">
+                          {v?.name || "Unnamed Vendor"}
+                        </div>
+                        <div className="text-sm text-gray-600 mt-0.5">
+                          {v?.primaryService || serviceTypeState}
+                          {v?.city ? ` • ${v.city}` : ""}
+                        </div>
+                        {v?.startingPrice != null && (
+                          <div className="text-sm text-gray-700 mt-1">
+                            Starting from ₹{Number(v.startingPrice).toLocaleString("en-IN")}
+                          </div>
+                        )}
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            className="text-xs px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200"
+                            onClick={() => removeFromCompare(v._id)}
+                          >
+                            Remove
+                          </button>
+                          <button
+                            className="text-xs px-3 py-1.5 rounded-lg bg-[#CCAB4A] text-white hover:bg-[#ab8f39]"
+                            onClick={() => navigate(`/vendors/${v._id}`)}
+                          >
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 flex items-center justify-between">
+                  <button
+                    onClick={clearCompare}
+                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium"
+                  >
+                    Clear All
+                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      className="px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium"
+                      onClick={() => setIsSelectedModalOpen(false)}
+                    >
+                      Close
+                    </button>
+                    <button
+                      className="px-4 py-2 rounded-lg bg-[#CCAB4A] text-white hover:bg-[#ab8f39] text-sm font-semibold"
+                      onClick={() => {
+                        setIsSelectedModalOpen(false);
+                        setIsCompareOpen(true); // quick jump to compare if needed
+                      }}
+                    >
+                      Compare Them
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Footer (unchanged) */}
       <div className="footer h-fit pt-20 pb-5 bg-[#FFD3C3] text-[#D48060] rounded-t-[80px] transition-colors duration-300">
-        {/* … your footer as-is … */}
         <div className="top mx-20 flex justify-between">
           <div className="left flex flex-col gap-16">
             <div className="top text-[45px] font-bold">tendr</div>

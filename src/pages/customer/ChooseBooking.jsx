@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { CalendarDays, Briefcase, ArrowRight } from "lucide-react";
-import { setBookingType } from "../../redux/eventPlanningSlice";
+import { setBookingType, resetEventPlanning } from "../../redux/eventPlanningSlice";
 import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 export default function ChooseBooking() {
@@ -10,7 +10,8 @@ export default function ChooseBooking() {
   const dispatch = useDispatch();
 
   const handleChoose = (type) => {
-    dispatch(setBookingType(type));
+    dispatch(resetEventPlanning());      // ✅ Reset state first
+    dispatch(setBookingType(type));      // ✅ Then set booking type
     navigate(`/plan-event/form?bookingType=${type}`);
   };
 

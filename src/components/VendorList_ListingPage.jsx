@@ -1,3 +1,4 @@
+// src/components/VendorList_ListingPage.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -21,6 +22,24 @@ const VendorList_ListingPage = ({
   onToggleCompare,
 }) => {
   const navigate = useNavigate();
+
+  const handleCardClick = (vendorId) => {
+    // ✅ SPA navigation (no full reload, Redux state stays intact)
+    navigate(`/vendor/${vendorId}`, {
+      state: {
+        from: "listing",
+        filters: {
+          eventType,
+          serviceType,
+          locationType,
+          date,
+          guestCount,
+          sortBy,
+          sortOrder,
+        },
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-full">
@@ -138,10 +157,14 @@ const VendorList_ListingPage = ({
                 return (
                   <div
                     key={vendor._id || index}
-                    onClick={() => (window.location.href = `/vendor/${vendor._id}`)}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleCardClick(vendor._id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") handleCardClick(vendor._id);
+                    }}
                     className="group vendor-card bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer overflow-hidden"
                   >
-
                     {/* Vendor Image */}
                     <div className="relative">
                       <div className="aspect-[16/10] w-full overflow-hidden bg-gray-50">
@@ -183,10 +206,11 @@ const VendorList_ListingPage = ({
                           {[...Array(5)].map((_, i) => (
                             <svg
                               key={i}
-                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${i < Math.floor(vendor.rating || 0)
+                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
+                                i < Math.floor(vendor.rating || 0)
                                   ? "text-yellow-400"
                                   : "text-gray-300"
-                                }`}
+                              }`}
                               aria-hidden="true"
                               fill="currentColor"
                               viewBox="0 0 20 20"
@@ -214,13 +238,14 @@ const VendorList_ListingPage = ({
                       <div className="mt-4 flex justify-end">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // don't navigate
+                            e.stopPropagation(); // ✅ don't navigate when comparing
                             onToggleCompare?.(vendor);
                           }}
-                          className={`text-xs sm:text-sm px-3 py-1.5 rounded-full border transition-colors ${isSelected
+                          className={`text-xs sm:text-sm px-3 py-1.5 rounded-full border transition-colors ${
+                            isSelected
                               ? "bg-[#CCAB4A] text-white border-[#CCAB4A]"
                               : "bg-white text-gray-700 border-gray-200 hover:border-[#CCAB4A]/60"
-                            } focus:outline-none focus:ring-2 focus:ring-[#CCAB4A]/40`}
+                          } focus:outline-none focus:ring-2 focus:ring-[#CCAB4A]/40`}
                           title="Select two vendors to compare"
                           aria-pressed={isSelected}
                         >
@@ -242,10 +267,9 @@ const VendorList_ListingPage = ({
               type="button"
               onClick={handleShowMore}
               disabled={isLoading}
-              className={`rounded-full shadow-sm px-6 py-2.5 font-semibold border border-[#CCAB4A] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#CCAB4A]/30 ${isLoading
-                  ? "opacity-60 cursor-not-allowed"
-                  : "hover:-translate-y-0.5 hover:shadow-md"
-                }`}
+              className={`rounded-full shadow-sm px-6 py-2.5 font-semibold border border-[#CCAB4A] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#CCAB4A]/30 ${
+                isLoading ? "opacity-60 cursor-not-allowed" : "hover:-translate-y-0.5 hover:shadow-md"
+              }`}
             >
               {isLoading ? "Loading..." : "Show More"}
             </button>

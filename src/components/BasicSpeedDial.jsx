@@ -14,7 +14,7 @@ const actions = [
   { icon: <CheckBoxIcon />, name: 'Checklist', path: '/checklist-picker' },
   { icon: <InsertInvitationIcon />, name: 'Invitation Flyers', path: '/invitation' },
   { icon: <MovieIcon />, name: 'Aftermovie', path: '/aftermovie' },
-  {icon: <GroupAddIcon/>, name: 'RSVP Invite Tracker', path: '/invite-tracker' },
+  {icon: <GroupAddIcon/>, name: 'Budget Allocator', path: '/budget-picker' },
 ];
 
 

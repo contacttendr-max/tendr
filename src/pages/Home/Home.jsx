@@ -61,10 +61,17 @@ const Home = () => {
     else if(selectedValue =='checklist'){
        navigate('/checklist-picker');
     }
+    else if(selectedValue =='budget'){
+       navigate('/budget-picker');
+    }
     else if(selectedValue =='invitation'){
        navigate('/invitation');
     }
   }
+
+  const handleGiftHampersClick = () => {
+    navigate('/gift-hampers-cakes');
+  };
 
   const services = [
     {
@@ -155,6 +162,7 @@ const Home = () => {
               <option value="" disabled selected>Tendr Utilities</option>
               <option value="checklist">Checklist</option>
               <option value="timeline-picker">Timeline</option>
+              <option value="budget">Budget Allocator</option>
               <option value="aftermovie">Aftermovie</option>
               <option value="invitaion">Invitaion Flyers</option>
             </select>
@@ -166,6 +174,13 @@ const Home = () => {
               onClick={handleWhatsAppClick}
             >
               💬
+            </a>
+            <a
+              href="/gift-hampers-cakes" 
+              className="nav-link" 
+              onClick={handleGiftHampersClick}
+            >
+              Gift Hampers & Cakes
             </a>
             <a href="/login" className="sign-in" onClick={handleSignInClick}>
               Sign in

@@ -3,16 +3,16 @@ import React from "react";
 
 const PrimaryFilters_ListingPage = ({
   eventType = "",
-  setEventType = () => {},
+  setEventType = () => { },
   serviceType = "",
-  setServiceType = () => {},
+  setServiceType = () => { },
   locationType = "",
-  setLocationType = () => {},
+  setLocationType = () => { },
   date = "",
-  setDate = () => {},
+  setDate = () => { },
   guestCount = "",
-  setGuestCount = () => {},
-  onSearch = () => {},
+  setGuestCount = () => { },
+  onSearch = () => { },
 }) => {
   return (
     <div className="primary-filters space-y-4 sm:space-y-6">
@@ -39,12 +39,20 @@ const PrimaryFilters_ListingPage = ({
         <label className="block text-sm sm:text-base font-medium text-gray-700 mb-2">
           Location
         </label>
-        <input
+        <select
           value={locationType}
           onChange={(e) => setLocationType(e.target.value)}
-          placeholder="City / Area"
           className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#CCAB4A] focus:border-[#CCAB4A] text-sm sm:text-base"
-        />
+        >
+          <option value="" disabled>
+            Select Location
+          </option>
+          <option value="Delhi">Delhi</option>
+          <option value="Noida">Noida</option>
+          <option value="Greater Noida">Greater Noida</option>
+          <option value="Gurugram">Gurugram</option>
+          <option value="Ghaziabad">Ghaziabad</option>
+        </select>
       </div>
 
       {/* Event Type */}
