@@ -295,6 +295,26 @@ const EventPlanning = () => {
               )}
             </div>
 
+            {/* Review Booking Button */}
+            <div className="text-center mt-8">
+              <button
+                onClick={() => {
+                  const bookingDetails = {
+                    ...formData,
+                    vendors: selectedVendors,
+                    customerId: localStorage.getItem("userId"),
+                    amount: 250, // You can calculate actual amount here
+                    addons: [],
+                    extraRequirements,
+                  };
+                  navigate('/booking/review', { state: { booking: bookingDetails } });
+                }}
+                className="px-6 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600"
+              >
+                Review Booking
+              </button>
+            </div>
+
             {/* Btn Back to Form */}
             <div className="text-center mt-4">
               <div className="inline-block group transition duration-300 rounded-lg">
@@ -518,6 +538,41 @@ const EventPlanning = () => {
 
           <div className="w-full max-w-4xl mt-6">
             <EventFormSummary />
+            {/* Review Booking & Payment Buttons */}
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={() => {
+                  const bookingDetails = {
+                    ...formData,
+                    vendors: selectedVendors,
+                    customerId: localStorage.getItem("userId"),
+                    amount: 250, // You can calculate actual amount here
+                    addons: [],
+                    extraRequirements: extraRequirementsText,
+                  };
+                  navigate('/booking/review', { state: { booking: bookingDetails } });
+                }}
+                className="px-6 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600"
+              >
+                Review Booking
+              </button>
+              <button
+                onClick={() => {
+                  const bookingDetails = {
+                    ...formData,
+                    vendors: selectedVendors,
+                    customerId: localStorage.getItem("userId"),
+                    amount: 250, // You can calculate actual amount here
+                    addons: [],
+                    extraRequirements: extraRequirementsText,
+                  };
+                  navigate('/booking/payment', { state: { booking: bookingDetails } });
+                }}
+                className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600"
+              >
+                Proceed to Payment
+              </button>
+            </div>
           </div>
         </div>
       </div>
