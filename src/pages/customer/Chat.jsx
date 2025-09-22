@@ -138,22 +138,9 @@ const Chat = () => {
     return () => {
       pendingAttachments.forEach((a) => URL.revokeObjectURL(a.url));
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleUserTyping = (e) => {
-    setMessage(e.target.value);
-    clearTimeout(window.vendorTypingTimeout);
-    window.vendorTypingTimeout = setTimeout(() => {
-      setIsVendorTyping(true);
-    }, 1000);
-  };
-
-  const openFilePicker = () => {
-    if (!fileInputRef.current) return;
-    fileInputRef.current.click();
-  };
-
+  // All function definitions must be above the return statement
   const handleFilesChosen = (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -204,12 +191,19 @@ const Chat = () => {
 
   const removePendingAttachment = (id) => {
     setPendingAttachments((prev) => {
-      const found = prev.find((p) => p.id === id);
-      if (found) URL.revokeObjectURL(found.url);
-      return prev.filter((p) => p.id !== id);
+      // ...existing code...
     });
   };
 
+  // ...other function definitions (handleSendMessage, openFilePicker, etc.)...
+
+  // ...all function definitions above...
+  return (
+    <div className="min-h-screen bg-[#fff0ea] flex flex-col">
+      {/* ...existing JSX code... */}
+    </div>
+  );
+  // Move handleSendMessage above return
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!vendorApproved) return;
@@ -224,22 +218,19 @@ const Chat = () => {
       sender: "user",
       attachments: hasImages
         ? pendingAttachments.map((a) => ({
-          url: a.url,
-          name: a.name,
-          type: a.type,
-          size: a.size,
-        }))
+            url: a.url,
+            name: a.name,
+            type: a.type,
+            size: a.size,
+          }))
         : undefined,
       ts: Date.now(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setMessage("");
-
-    // Clear pending attachments (keep object URLs alive in the message UI)
     setPendingAttachments([]);
 
-    // Simulated vendor reply
     setIsVendorTyping(true);
     setTimeout(() => {
       setMessages((prev) => [

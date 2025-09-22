@@ -58,6 +58,24 @@ const VendorList = () => {
   // NEW: modal to show selected vendors from top picks button
   const [isSelectedModalOpen, setIsSelectedModalOpen] = useState(false);
 
+  // Booking review navigation after vendor selection
+  const handleGoToBookingReview = () => {
+    // Example: collect all event and vendor data here
+    const bookingDetails = {
+      eventName: eventTypeState,
+      service: serviceTypeState,
+      date: dateState,
+      guests: guestCountState,
+      vendors: vendorList.filter(v => v.selected), // or your selection logic
+      address: locationTypeState,
+      basePrice: 250, // replace with actual price logic
+      customerId: localStorage.getItem("userId"),
+      addons: [],
+      amount: 250,
+    };
+    navigate('/booking/review', { state: { booking: bookingDetails } });
+  };
+
   // fetch on changes
   useEffect(() => {
     if (!locationTypeState || !serviceTypeState) return;
@@ -113,11 +131,17 @@ const VendorList = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <ListingsNav />
-
       <div className="flex flex-col lg:flex-row">
         {/* Sidebar */}
         <div className="w-full lg:w-1/4 bg-white shadow-lg lg:shadow-none lg:border-r border-gray-200">
           <div className="p-4 lg:p-6">
+            {/* Add button to go to booking review */}
+            <button
+              onClick={handleGoToBookingReview}
+              className="mb-4 px-6 py-3 bg-amber-500 text-white rounded-lg font-semibold hover:bg-amber-600 w-full"
+            >
+              Review & Continue Booking
+            </button>
             <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 lg:mb-6">
               Filters
             </h2>

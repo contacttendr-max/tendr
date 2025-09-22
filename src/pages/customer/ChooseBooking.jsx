@@ -6,6 +6,26 @@ import { setBookingType, resetEventPlanning } from "../../redux/eventPlanningSli
 import BasicSpeedDial from "../../components/BasicSpeedDial";
 
 export default function ChooseBooking() {
+  // Example booking details for review navigation
+  const exampleBookingDetails = {
+    offerId: "64f5e6c1b2c3d4a56789ef01",
+    vendorId: "64f5e6c1b2c3d4a56789ef02",
+    eventName: "Tech Summit 2024",
+    date: "2025-09-10",
+    time: "10:00 AM – 4:00 PM",
+    vendor: "John Doe",
+    guests: 150,
+    service: "Premium",
+    address: "Tendr, NCR, Delhi",
+    basePrice: 250,
+    customerId: localStorage.getItem("userId"),
+    addons: [],
+    amount: 250,
+  };
+
+  const handleGoToReview = () => {
+    navigate('/booking/review', { state: { booking: exampleBookingDetails } });
+  };
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

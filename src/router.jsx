@@ -46,6 +46,14 @@ import CustomerChatList from "./pages/customer/Chats";
 import EventPlanning from "./pages/customer/EventPlanning.jsx";
 import GiftHampersCakes from './pages/customer/GiftHampersCakes';
 
+import BookingReviewPage from './pages/booking/BookingReviewPage';
+import PaymentSelectionPage from './pages/booking/PaymentSelectionPage';
+import PaymentProcessing from './pages/booking/PaymentProcessing';
+import PaymentSuccessPage from './pages/booking/PaymentSuccessPage';
+import PaymentFailedPage from './pages/booking/PaymentFailedPage';
+import BookingConfirmation from './pages/booking/BookingConfirmation';
+
+
 const router = createBrowserRouter([
   { 
     path: "/", 
@@ -211,6 +219,30 @@ const router = createBrowserRouter([
     element: <ChooseBooking />, 
     errorElement: <ErrorPage /> 
   },
+    {
+      path: "/booking/review",
+      element: <BookingReviewPage />
+    },
+    {
+      path: "/booking/payment",
+      element: <PaymentSelectionPage />
+    },
+    {
+      path: "/booking/payment-processing",
+      element: <PaymentProcessing />
+    },
+    {
+      path: "/booking/payment-success",
+      element: <PaymentSuccessPage />
+    },
+    {
+      path: "/booking/payment-failed",
+      element: <PaymentFailedPage />
+    },
+    {
+      path: "/booking/confirmation",
+      element: <BookingConfirmation />
+    },
 
   // Single form route (reads ?bookingType=you-do-it|let-us-do-it)
   { 
@@ -275,5 +307,6 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
 ]);
+
 
 export default router;
